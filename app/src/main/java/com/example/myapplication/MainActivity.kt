@@ -17,7 +17,7 @@ class MainActivity : ComponentActivity() {
 
         // Determine which activity to launch
         val intent = if (userEmail != null) {
-            Intent(this, HomeActivity::class.java)  // User is logged in → Go to HomeActivity
+            Intent(this, ProfileActivity::class.java)  // User is logged in → Go to HomeActivity
         } else {
             Intent(this, LoginActivity::class.java) // User is not logged in → Go to LoginActivity
         }

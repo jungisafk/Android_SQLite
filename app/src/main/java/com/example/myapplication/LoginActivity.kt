@@ -51,14 +51,22 @@ class LoginActivity : AppCompatActivity() {
         )
 
         if (cursor.moveToFirst()) {
-            // Save login session
+            // Get user ID from database
+            val userId = dbHelper.getUserId(email)
+
+            // Save login session with user ID
             sharedPreferences.edit().apply {
                 putString("user_email", email)
+                putInt("user_id", userId) // Store the user ID
                 apply()
             }
 
             Toast.makeText(this, "Login Successful!", Toast.LENGTH_SHORT).show()
-            startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+
+            // Pass user ID to DashboardActivity
+            val intent = Intent(this@LoginActivity, DashboardActivity::class.java)
+            intent.putExtra("USER_ID", userId)
+            startActivity(intent)
             finish()
         } else {
             Toast.makeText(this, "Invalid Email or Password!", Toast.LENGTH_SHORT).show()
@@ -66,4 +74,5 @@ class LoginActivity : AppCompatActivity() {
 
         cursor.close()
     }
+
 }
