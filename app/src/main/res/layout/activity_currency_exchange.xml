@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@color/light_gray"
+    android:padding="12dp">
+
+    <!-- Toolbar for a professional look -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="?attr/colorPrimary"
+        android:title="Currency Exchange"
+        android:titleTextColor="@android:color/white"/>
+
+    <!-- Search bar for filtering currencies -->
+    <EditText
+        android:id="@+id/searchCurrency"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Search currency..."
+        android:padding="10dp"
+        android:background="@android:drawable/editbox_background"
+        android:drawableStart="@android:drawable/ic_menu_search"/>
+
+    <!-- SwipeRefreshLayout for a smooth refresh experience -->
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        android:id="@+id/swipeRefreshLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <!-- RecyclerView for displaying currency exchange rates -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/recyclerViewCurrencies"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="8dp"
+            android:clipToPadding="false"/>
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+</LinearLayout>

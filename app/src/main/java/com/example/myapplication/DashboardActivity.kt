@@ -19,7 +19,7 @@ class DashboardActivity : AppCompatActivity() {
 
     private lateinit var profileCard: CardView
     private lateinit var settingsCard: CardView
-    private lateinit var feature3Card: CardView
+    private lateinit var CurrencyExchange: CardView
     private lateinit var feature4Card: CardView
 
     @SuppressLint("SetTextI18n", "MissingInflatedId")
@@ -40,7 +40,7 @@ class DashboardActivity : AppCompatActivity() {
 
         profileCard = findViewById(R.id.profileCard)
         settingsCard = findViewById(R.id.SettingsCard)
-        feature3Card = findViewById(R.id.feature3Card)
+        CurrencyExchange = findViewById(R.id.CurrencyExchange)
         feature4Card = findViewById(R.id.feature4Card)
 
         // Fetch user name from database
@@ -50,7 +50,7 @@ class DashboardActivity : AppCompatActivity() {
         // Set click listeners for feature cards
         profileCard.setOnClickListener {  navigateToProfile() }
         settingsCard.setOnClickListener {  navigateToSettings() }
-        feature3Card.setOnClickListener {  navigateToFeature3() }
+        CurrencyExchange.setOnClickListener {  navigateToCurrencyExchange() }
         feature4Card.setOnClickListener {  navigateToFeature4() }
 
         // Initialize Bottom Navigation
@@ -87,8 +87,10 @@ class DashboardActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun navigateToFeature3() {
-        Toast.makeText(this, "Feature 3 Clicked!", Toast.LENGTH_SHORT).show()
+    private fun navigateToCurrencyExchange() {
+        Toast.makeText(this, "Currency Exchange!", Toast.LENGTH_SHORT).show()
+        val intent = Intent(this@DashboardActivity, CurrencyExchangeActivity::class.java)
+        startActivity(intent)
     }
 
     private fun navigateToFeature4() {

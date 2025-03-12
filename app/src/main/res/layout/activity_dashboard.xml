@@ -123,7 +123,7 @@
 
         <!-- Feature 3 Card -->
         <androidx.cardview.widget.CardView
-            android:id="@+id/feature3Card"
+            android:id="@+id/CurrencyExchange"
             android:layout_width="0dp"
             android:layout_height="160dp"
             android:layout_margin="8dp"
@@ -145,13 +145,13 @@
                 <ImageView
                     android:layout_width="64dp"
                     android:layout_height="64dp"
-                    android:src="@drawable/ic_feature3"
-                    android:contentDescription="Feature 3 Icon"/>
+                    android:src="@drawable/ic_money"
+                    android:contentDescription="Currency Exchange"/>
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Feature 3"
+                    android:text="Currency Exchange"
                     android:textSize="16sp"
                     android:textStyle="bold"
                     android:gravity="center"/>
