@@ -1,8 +1,10 @@
 package com.example.myapplication
 
-import android.content.Intent
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
+import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -15,6 +17,9 @@ import retrofit2.Response
 class CurrencyExchangeActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
     private lateinit var currencyAdapter: CurrencyAdapter
+    private lateinit var searchCurrency: EditText
+
+    private var allCurrencies: Map<String, Double> = emptyMap() // Store original data
     private val TAG = "CurrencyExchange"
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -24,56 +29,52 @@ class CurrencyExchangeActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerViewCurrencies)
         recyclerView.layoutManager = LinearLayoutManager(this)
 
-        // Initialize adapter with empty list first
+        searchCurrency = findViewById(R.id.searchCurrency)
+
         currencyAdapter = CurrencyAdapter(emptyMap())
         recyclerView.adapter = currencyAdapter
 
         fetchExchangeRates()
+
+        // Add TextWatcher to filter results based on search input
+        searchCurrency.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable?) {
+                currencyAdapter.filter(s.toString()) // Filter list dynamically
+            }
+
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+        })
     }
 
     private fun fetchExchangeRates() {
         Toast.makeText(this, "Loading currency rates...", Toast.LENGTH_SHORT).show()
 
-        RetrofitClient.instance.getExchangeRates("USD")
+        RetrofitClient.instance.getExchangeRates("PHP")
             .enqueue(object : Callback<ExchangeRateResponse> {
                 override fun onResponse(call: Call<ExchangeRateResponse>, response: Response<ExchangeRateResponse>) {
-                    Log.d(TAG, "Raw response: ${response.raw()}")
-
                     if (response.isSuccessful) {
                         val responseBody = response.body()
-                        Log.d(TAG, "Full Response: $responseBody")
-
-                        // Check if the response has valid data
                         if (responseBody?.rates != null && responseBody.rates.isNotEmpty()) {
-                            currencyAdapter.updateRates(responseBody.rates)
-                            Log.d(TAG, "Loaded ${responseBody.rates.size} currencies")
+                            allCurrencies = responseBody.rates // Store full list
+                            currencyAdapter.updateRates(allCurrencies)
                         } else {
-                            // If rates is null or empty
-                            Log.e(TAG, "API returned empty data: $responseBody")
-                            Toast.makeText(
-                                this@CurrencyExchangeActivity,
-                                "Error loading currencies: No data returned",
-                                Toast.LENGTH_LONG
-                            ).show()
-
+                            Toast.makeText(this@CurrencyExchangeActivity, "No currency data available.", Toast.LENGTH_LONG).show()
                         }
                     } else {
-                        val errorMsg = "Error: ${response.code()} - ${response.message()}"
-                        val errorBody = response.errorBody()?.string() ?: "No error details"
-                        Log.e(TAG, "Response unsuccessful: $errorMsg, $errorBody")
-                        Toast.makeText(this@CurrencyExchangeActivity, errorMsg, Toast.LENGTH_LONG).show()
+                        Toast.makeText(this@CurrencyExchangeActivity, "Error: ${response.message()}", Toast.LENGTH_LONG).show()
                     }
                 }
 
                 override fun onFailure(call: Call<ExchangeRateResponse>, t: Throwable) {
-                    Log.e(TAG, "API call failed: ${t.message}", t)
-                    Toast.makeText(
-                        this@CurrencyExchangeActivity,
-                        "Failed to load currencies: ${t.localizedMessage}",
-                        Toast.LENGTH_LONG
-                    ).show()
-
+                    Toast.makeText(this@CurrencyExchangeActivity, "Failed to load currencies.", Toast.LENGTH_LONG).show()
                 }
             })
+    }
+
+    private fun filterCurrencies(query: String) {
+        val filteredRates = allCurrencies.filterKeys { it.contains(query, ignoreCase = true) }
+        currencyAdapter.updateRates(filteredRates)
     }
 }

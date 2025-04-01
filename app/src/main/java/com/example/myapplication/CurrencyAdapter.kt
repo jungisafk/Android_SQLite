@@ -5,16 +5,29 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
 class CurrencyAdapter(private var rates: Map<String, Double>) :
     RecyclerView.Adapter<CurrencyAdapter.ViewHolder>() {
 
     private var currencyList = rates.toList()  // Convert map to list
+    private var filteredList = currencyList.toList()  // Separate list for filtering
 
-    // Add this method to update data without recreating the adapter
+    // Update the entire dataset
     fun updateRates(newRates: Map<String, Double>) {
         rates = newRates
-        currencyList = newRates.toList()  // Update the list
+        currencyList = newRates.toList()
+        filteredList = currencyList // Reset filtered list
+        notifyDataSetChanged()
+    }
+
+    // Filter function
+    fun filter(query: String) {
+        filteredList = if (query.isEmpty()) {
+            currencyList  // Show full list if search is empty
+        } else {
+            currencyList.filter { it.first.contains(query, ignoreCase = true) }
+        }
         notifyDataSetChanged()
     }
 
@@ -25,12 +38,12 @@ class CurrencyAdapter(private var rates: Map<String, Double>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        val (currency, rate) = currencyList[position]
+        val (currency, rate) = filteredList[position]
         holder.bind(currency, rate)
     }
 
     override fun getItemCount(): Int {
-        return currencyList.size
+        return filteredList.size
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {

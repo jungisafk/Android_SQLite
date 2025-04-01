@@ -1,28 +1,26 @@
 package com.example.myapplication
 
-import android.annotation.SuppressLint
 import android.content.Intent
-import android.content.SharedPreferences
 import android.os.Bundle
-import android.widget.Button
-import android.widget.TextView
+import android.content.SharedPreferences
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.cardview.widget.CardView
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import com.example.myapplication.R
+import android.widget.TextView
 
 class DashboardActivity : AppCompatActivity() {
-    private lateinit var tvWelcome: TextView
+
+    private lateinit var recyclerView: RecyclerView
+    private lateinit var featureCardAdapter: FeatureCardAdapter
     private lateinit var dbHelper: DatabaseHelper
     private lateinit var sharedPreferences: SharedPreferences
+    private lateinit var tvWelcome: TextView
+
     private var userEmail: String? = null // Store user email instead of ID
 
-    private lateinit var profileCard: CardView
-    private lateinit var settingsCard: CardView
-    private lateinit var CurrencyExchange: CardView
-    private lateinit var feature4Card: CardView
-
-    @SuppressLint("SetTextI18n", "MissingInflatedId")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_dashboard)
@@ -33,30 +31,21 @@ class DashboardActivity : AppCompatActivity() {
 
         // Get stored user email from shared preferences
         val userEmail = sharedPreferences.getString("user_email", "Guest")!!
+        tvWelcome = findViewById(R.id.tvWelcome) // Initialize the TextView
 
-        // Initialize UI elements
-        tvWelcome = findViewById(R.id.tvWelcome)
-        settingsCard = findViewById(R.id.SettingsCard)
-
-        profileCard = findViewById(R.id.profileCard)
-        settingsCard = findViewById(R.id.SettingsCard)
-        CurrencyExchange = findViewById(R.id.CurrencyExchange)
-        feature4Card = findViewById(R.id.feature4Card)
+        // Set up RecyclerView
+        recyclerView = findViewById(R.id.recyclerView)
+        recyclerView.layoutManager = GridLayoutManager(this, 2)  // 2 columns
+        featureCardAdapter = FeatureCardAdapter(getFeatureCards())  // Create adapter with data
+        recyclerView.adapter = featureCardAdapter
 
         // Fetch user name from database
-        val userName: String = dbHelper.getLoggedInUserName(userEmail)
-        tvWelcome.text = "Welcome, $userName!"
-
-        // Set click listeners for feature cards
-        profileCard.setOnClickListener {  navigateToProfile() }
-        settingsCard.setOnClickListener {  navigateToSettings() }
-        CurrencyExchange.setOnClickListener {  navigateToCurrencyExchange() }
-        feature4Card.setOnClickListener {  navigateToFeature4() }
+        val userName: String = dbHelper.getLoggedInUserName(userEmail) // Ensure this method returns the correct username
+        tvWelcome.text = "Welcome, $userName!" // Set welcome message with the username
 
         // Initialize Bottom Navigation
         val bottomNavigation = findViewById<BottomNavigationView>(R.id.bottom_navigation)
-
-        bottomNavigation?.setOnItemSelectedListener { item ->
+        bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.nav_dashboard -> {
                     startActivity(Intent(this, DashboardActivity::class.java))
@@ -75,25 +64,57 @@ class DashboardActivity : AppCompatActivity() {
         }
     }
 
-    private fun navigateToProfile() {
-        Toast.makeText(this, "Profile Clicked!", Toast.LENGTH_SHORT).show()
-        val intent = Intent(this@DashboardActivity, ProfileActivity::class.java)
-        startActivity(intent)
+    private fun getFeatureCards(): List<FeatureCard> {
+        // This is where you provide the data for the feature cards
+        return listOf(
+            FeatureCard("Profile", R.drawable.ic_profile), // Make sure you have the correct resource
+            FeatureCard("Currency Exchange", R.drawable.ic_transactions),
+            FeatureCard("Settings", R.drawable.ic_settings)
+        )
+    }
+}
+
+// FeatureCard data class
+data class FeatureCard(val title: String, val iconResId: Int)
+
+// Adapter for RecyclerView
+class FeatureCardAdapter(private val featureCardList: List<FeatureCard>) :
+    RecyclerView.Adapter<FeatureCardAdapter.FeatureCardViewHolder>() {
+
+    override fun onCreateViewHolder(parent: android.view.ViewGroup, viewType: Int): FeatureCardViewHolder {
+        val view = android.view.LayoutInflater.from(parent.context)
+            .inflate(R.layout.item_feature_card, parent, false)
+        return FeatureCardViewHolder(view)
     }
 
-    private fun navigateToSettings() {
-        Toast.makeText(this, "Dashboard Clicked!", Toast.LENGTH_SHORT).show()
-        val intent = Intent(this@DashboardActivity, SettingsActivity::class.java)
-        startActivity(intent)
+    override fun onBindViewHolder(holder: FeatureCardViewHolder, position: Int) {
+        val featureCard = featureCardList[position]
+        holder.featureTitle.text = featureCard.title
+        holder.featureIcon.setImageResource(featureCard.iconResId)
+
+        // Set click listener on the CardView
+        holder.itemView.setOnClickListener {
+            when (featureCard.title) {
+                "Profile" -> {
+                    val intent = android.content.Intent(it.context, ProfileActivity::class.java)
+                    it.context.startActivity(intent)
+                }
+                "Currency Exchange" -> {
+                    val intent = android.content.Intent(it.context, CurrencyExchangeActivity::class.java)
+                    it.context.startActivity(intent)
+                }
+                "Settings" -> {
+                    val intent = android.content.Intent(it.context, SettingsActivity::class.java)
+                    it.context.startActivity(intent)
+                }
+            }
+        }
     }
 
-    private fun navigateToCurrencyExchange() {
-        Toast.makeText(this, "Currency Exchange!", Toast.LENGTH_SHORT).show()
-        val intent = Intent(this@DashboardActivity, CurrencyExchangeActivity::class.java)
-        startActivity(intent)
-    }
+    override fun getItemCount(): Int = featureCardList.size
 
-    private fun navigateToFeature4() {
-        Toast.makeText(this, "Feature 4 Clicked!", Toast.LENGTH_SHORT).show()
+    inner class FeatureCardViewHolder(view: android.view.View) : RecyclerView.ViewHolder(view) {
+        val featureTitle: android.widget.TextView = view.findViewById(R.id.featureTitle)
+        val featureIcon: android.widget.ImageView = view.findViewById(R.id.featureIcon)
     }
 }
